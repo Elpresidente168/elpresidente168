@@ -1,0 +1,4534 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>La Carrera Política — Simulador</title>
+
+<style>
+:root {
+    --bg: #0b1020;
+    --panel: #131a2b;
+    --panel-2: #1a2338;
+    --panel-3: #202b43;
+    --text: #f5f7fb;
+    --muted: #9aa7bd;
+    --accent: #4f8cff;
+    --accent-2: #7c5cff;
+    --success: #32c48d;
+    --warning: #f0b429;
+    --danger: #ef5b5b;
+    --white: #ffffff;
+    --border: rgba(255,255,255,.08);
+    --shadow: 0 18px 50px rgba(0,0,0,.25);
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont,
+        "Segoe UI", sans-serif;
+    background:
+        radial-gradient(circle at top left, rgba(79,140,255,.12), transparent 35%),
+        radial-gradient(circle at top right, rgba(124,92,255,.10), transparent 30%),
+        var(--bg);
+    color: var(--text);
+}
+
+button {
+    font: inherit;
+}
+
+.hidden {
+    display: none !important;
+}
+
+.app {
+    width: min(1250px, calc(100% - 28px));
+    margin: 0 auto;
+    padding: 28px 0 50px;
+}
+
+/* =========================
+   HEADER
+========================= */
+
+header {
+    background: linear-gradient(
+        135deg,
+        rgba(79,140,255,.18),
+        rgba(124,92,255,.12)
+    );
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    padding: 30px;
+    margin-bottom: 20px;
+    box-shadow: var(--shadow);
+}
+
+.header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 20px;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.logo-icon {
+    width: 54px;
+    height: 54px;
+    border-radius: 16px;
+    display: grid;
+    place-items: center;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    font-size: 25px;
+    font-weight: 900;
+}
+
+h1 {
+    margin: 0;
+    font-size: clamp(27px, 5vw, 42px);
+    letter-spacing: -.04em;
+}
+
+.subtitle {
+    margin-top: 5px;
+    color: var(--muted);
+}
+
+.year-box {
+    text-align: right;
+}
+
+.year-box strong {
+    display: block;
+    font-size: 28px;
+}
+
+.year-box span {
+    color: var(--muted);
+    font-size: 13px;
+}
+
+/* =========================
+   TOP INFORMATION
+========================= */
+
+.identity {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.identity-card,
+.stat-card,
+.panel {
+    background: rgba(19,26,43,.92);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+}
+
+.identity-card {
+    padding: 17px;
+}
+
+.identity-label {
+    font-size: 11px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: .08em;
+}
+
+.identity-value {
+    margin-top: 5px;
+    font-weight: 800;
+    font-size: 17px;
+}
+
+/* =========================
+   STATS
+========================= */
+
+.stats {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.stat-card {
+    padding: 17px;
+}
+
+.stat-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.stat-name {
+    color: var(--muted);
+    font-size: 12px;
+}
+
+.stat-value {
+    font-size: 27px;
+    font-weight: 900;
+    margin-top: 4px;
+}
+
+.progress {
+    height: 6px;
+    margin-top: 10px;
+    background: rgba(255,255,255,.07);
+    border-radius: 20px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, var(--accent), var(--accent-2));
+    transition: width .4s ease;
+}
+
+/* =========================
+   LAYOUT
+========================= */
+
+.main-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.7fr) minmax(280px, .8fr);
+    gap: 20px;
+    align-items: start;
+}
+
+.event-card {
+    background: var(--white);
+    color: #111827;
+    border-radius: 22px;
+    padding: clamp(22px, 4vw, 36px);
+    box-shadow: var(--shadow);
+}
+
+.event-meta {
+    color: #64748b;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+
+.event-title {
+    font-size: clamp(25px, 4vw, 34px);
+    margin: 10px 0;
+    line-height: 1.15;
+}
+
+.event-text {
+    font-size: 17px;
+    line-height: 1.7;
+    color: #374151;
+}
+
+.event-context {
+    margin-top: 20px;
+    padding: 14px 16px;
+    background: #f1f5f9;
+    border-radius: 13px;
+    color: #475569;
+    font-size: 14px;
+}
+
+.choices {
+    display: grid;
+    gap: 12px;
+    margin-top: 25px;
+}
+
+.choice {
+    width: 100%;
+    border: 1px solid #dbe3ef;
+    background: #f8fafc;
+    color: #111827;
+    border-radius: 15px;
+    padding: 17px;
+    text-align: left;
+    cursor: pointer;
+    transition: .18s ease;
+}
+
+.choice:hover {
+    transform: translateY(-2px);
+    border-color: #94a3b8;
+    background: #eef4ff;
+}
+
+.choice:disabled {
+    cursor: default;
+    opacity: .55;
+    transform: none;
+}
+
+.choice-title {
+    display: block;
+    font-weight: 800;
+    font-size: 15px;
+}
+
+.choice-description {
+    display: block;
+    margin-top: 5px;
+    color: #64748b;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.result {
+    margin-top: 20px;
+    border-radius: 15px;
+    padding: 17px;
+    background: #ecfdf5;
+    color: #14532d;
+    border: 1px solid #bbf7d0;
+    line-height: 1.6;
+}
+
+.result.danger {
+    background: #fef2f2;
+    color: #7f1d1d;
+    border-color: #fecaca;
+}
+
+.result.warning {
+    background: #fffbeb;
+    color: #78350f;
+    border-color: #fde68a;
+}
+
+/* =========================
+   SIDE PANELS
+========================= */
+
+.sidebar {
+    display: grid;
+    gap: 15px;
+}
+
+.panel {
+    padding: 19px;
+}
+
+.panel-title {
+    font-size: 14px;
+    font-weight: 850;
+    margin-bottom: 15px;
+}
+
+.relationship {
+    margin-bottom: 13px;
+}
+
+.relationship:last-child {
+    margin-bottom: 0;
+}
+
+.relationship-top {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    margin-bottom: 5px;
+}
+
+.relationship-name {
+    color: var(--muted);
+}
+
+.relationship-value {
+    font-weight: 800;
+}
+
+.relationship-bar {
+    height: 6px;
+    border-radius: 20px;
+    background: rgba(255,255,255,.07);
+    overflow: hidden;
+}
+
+.relationship-fill {
+    height: 100%;
+    background: var(--accent);
+    transition: width .4s ease;
+}
+
+.ideology {
+    text-align: center;
+}
+
+.ideology-number {
+    font-size: 30px;
+    font-weight: 900;
+}
+
+.ideology-scale {
+    position: relative;
+    height: 9px;
+    margin: 12px 0 7px;
+    border-radius: 20px;
+    background: linear-gradient(
+        90deg,
+        #5b6ee1,
+        #9ca3af,
+        #d97706
+    );
+}
+
+.ideology-marker {
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    border: 3px solid #111827;
+}
+
+.ideology-labels {
+    display: flex;
+    justify-content: space-between;
+    color: var(--muted);
+    font-size: 10px;
+}
+
+.career-list {
+    display: grid;
+    gap: 9px;
+}
+
+.career-item {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 10px 11px;
+    background: rgba(255,255,255,.035);
+    border-radius: 10px;
+    font-size: 12px;
+}
+
+.career-item span:last-child {
+    color: var(--muted);
+}
+
+/* =========================
+   HISTORY
+========================= */
+
+.history {
+    margin-top: 20px;
+}
+
+.history-list {
+    max-height: 300px;
+    overflow: auto;
+    display: grid;
+    gap: 8px;
+}
+
+.history-item {
+    padding: 11px 12px;
+    background: rgba(255,255,255,.035);
+    border-radius: 10px;
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+.history-age {
+    color: var(--accent);
+    font-weight: 800;
+}
+
+/* =========================
+   FOOTER ACTIONS
+========================= */
+
+.actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.action-btn {
+    border: 1px solid var(--border);
+    background: var(--panel);
+    color: var(--text);
+    border-radius: 12px;
+    padding: 11px 15px;
+    cursor: pointer;
+    font-weight: 700;
+}
+
+.action-btn:hover {
+    background: var(--panel-2);
+}
+
+.action-btn.danger {
+    color: #fecaca;
+    border-color: rgba(239,91,91,.25);
+}
+
+/* =========================
+   FINAL
+========================= */
+
+.final-card {
+    text-align: center;
+    padding: 30px;
+}
+
+.final-score {
+    display: grid;
+    grid-template-columns: repeat(4,1fr);
+    gap: 10px;
+    margin: 25px 0;
+}
+
+.final-score-item {
+    background: rgba(255,255,255,.05);
+    padding: 18px;
+    border-radius: 14px;
+}
+
+.final-score-value {
+    font-size: 28px;
+    font-weight: 900;
+}
+
+.final-score-label {
+    color: var(--muted);
+    font-size: 11px;
+    margin-top: 3px;
+}
+
+/* =========================
+   NOTIFICATION
+========================= */
+
+.toast {
+    position: fixed;
+    right: 18px;
+    bottom: 18px;
+    width: min(360px, calc(100% - 36px));
+    padding: 15px 17px;
+    background: #111827;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    box-shadow: var(--shadow);
+    transform: translateY(150%);
+    transition: .3s ease;
+    z-index: 50;
+    font-size: 13px;
+}
+
+.toast.show {
+    transform: translateY(0);
+}
+
+.toast strong {
+    display: block;
+    margin-bottom: 4px;
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media (max-width: 1050px) {
+    .stats {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .identity {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 800px) {
+    .main-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .sidebar {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .history {
+        grid-column: 1 / -1;
+    }
+}
+
+@media (max-width: 580px) {
+    .app {
+        width: min(100% - 18px, 1250px);
+        padding-top: 10px;
+    }
+
+    header {
+        padding: 21px;
+        border-radius: 18px;
+    }
+
+    .header-top {
+        flex-direction: column;
+    }
+
+    .year-box {
+        text-align: left;
+    }
+
+    .identity,
+    .stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .identity-card:first-child {
+        grid-column: 1 / -1;
+    }
+
+    .stats .stat-card:last-child {
+        grid-column: 1 / -1;
+    }
+
+    .sidebar {
+        grid-template-columns: 1fr;
+    }
+
+    .event-card {
+        border-radius: 18px;
+        padding: 22px;
+    }
+
+    .final-score {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+    <!-- =========================
+         HEADER
+    ========================== -->
+
+    <header>
+        <div class="header-top">
+
+            <div class="logo">
+                <div class="logo-icon">♟</div>
+
+                <div>
+                    <h1>La Carrera Política</h1>
+                    <div class="subtitle">
+                        De militante a Presidente de la República
+                    </div>
+                </div>
+            </div>
+
+            <div class="year-box">
+                <strong id="year">2026</strong>
+                <span>Año de la República</span>
+            </div>
+
+        </div>
+    </header>
+
+
+    <!-- =========================
+         IDENTIDAD
+    ========================== -->
+
+    <section class="identity">
+
+        <div class="identity-card">
+            <div class="identity-label">Carrera</div>
+            <div class="identity-value" id="cargo">
+                Militante
+            </div>
+        </div>
+
+        <div class="identity-card">
+            <div class="identity-label">Edad</div>
+            <div class="identity-value">
+                <span id="edad">18</span> años
+            </div>
+        </div>
+
+        <div class="identity-card">
+            <div class="identity-label">Partido</div>
+            <div class="identity-value" id="partido">
+                Partido Renovador
+            </div>
+        </div>
+
+        <div class="identity-card">
+            <div class="identity-label">Experiencia</div>
+            <div class="identity-value">
+                <span id="experiencia">0</span>/100
+            </div>
+        </div>
+
+    </section>
+
+
+    <!-- =========================
+         ESTADÍSTICAS
+    ========================== -->
+
+    <section class="stats">
+
+        <div class="stat-card">
+            <div class="stat-head">
+                <span class="stat-name">Popularidad</span>
+                <strong id="popularidad">10</strong>
+            </div>
+            <div class="progress">
+                <div class="progress-fill" id="barPopularidad"></div>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-head">
+                <span class="stat-name">Influencia</span>
+                <strong id="influencia">5</strong>
+            </div>
+            <div class="progress">
+                <div class="progress-fill" id="barInfluencia"></div>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-head">
+                <span class="stat-name">Prestigio</span>
+                <strong id="prestigio">10</strong>
+            </div>
+            <div class="progress">
+                <div class="progress-fill" id="barPrestigio"></div>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-head">
+                <span class="stat-name">Dinero</span>
+                <strong id="dinero">5</strong>
+            </div>
+            <div class="progress">
+                <div class="progress-fill" id="barDinero"></div>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-head">
+                <span class="stat-name">Experiencia</span>
+                <strong id="experienciaStat">0</strong>
+            </div>
+            <div class="progress">
+                <div class="progress-fill" id="barExperiencia"></div>
+            </div>
+        </div>
+
+    </section>
+
+
+    <!-- =========================
+         CONTENIDO PRINCIPAL
+    ========================== -->
+
+    <div class="main-grid">
+
+        <main>
+
+            <section class="event-card" id="eventCard">
+
+                <div class="event-meta" id="eventoMeta">
+                    AÑO 2026 — EDAD 18
+                </div>
+
+                <h2 class="event-title" id="eventoTitulo">
+                    El comienzo
+                </h2>
+
+                <div class="event-text" id="eventoTexto">
+                    Tienes 18 años y acabas de incorporarte a la juventud
+                    del Partido Renovador.
+                </div>
+
+                <div class="event-context" id="eventoContexto">
+                    Tu primera decisión puede definir el tipo de carrera
+                    política que construirás.
+                </div>
+
+                <div class="choices" id="opciones"></div>
+
+                <div class="result hidden" id="resultado"></div>
+
+            </section>
+
+        </main>
+
+
+        <!-- =========================
+             SIDEBAR
+        ========================== -->
+
+        <aside class="sidebar">
+
+            <!-- IDEOLOGÍA -->
+
+            <section class="panel">
+
+                <div class="panel-title">
+                    Perfil ideológico
+                </div>
+
+                <div class="ideology">
+
+                    <div class="ideology-number" id="ideologia">
+                        50
+                    </div>
+
+                    <div class="ideology-scale">
+                        <div
+                            class="ideology-marker"
+                            id="ideologyMarker"
+                        ></div>
+                    </div>
+
+                    <div class="ideology-labels">
+                        <span>Izquierda</span>
+                        <span>Centro</span>
+                        <span>Derecha</span>
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- RELACIONES -->
+
+            <section class="panel">
+
+                <div class="panel-title">
+                    Relaciones de poder
+                </div>
+
+                <div id="relaciones"></div>
+
+            </section>
+
+
+            <!-- CARRERA -->
+
+            <section class="panel">
+
+                <div class="panel-title">
+                    Trayectoria
+                </div>
+
+                <div class="career-list" id="trayectoria"></div>
+
+            </section>
+
+
+            <!-- HISTORIAL -->
+
+            <section class="panel history">
+
+                <div class="panel-title">
+                    Historial político
+                </div>
+
+                <div class="history-list" id="historial"></div>
+
+            </section>
+
+        </aside>
+
+    </div>
+
+
+    <!-- =========================
+         ACCIONES
+    ========================== -->
+
+    <div class="actions">
+
+        <button
+            class="action-btn"
+            onclick="guardarPartida()"
+        >
+            Guardar partida
+        </button>
+
+        <button
+            class="action-btn"
+            onclick="cargarPartida()"
+        >
+            Cargar partida
+        </button>
+
+        <button
+            class="action-btn danger"
+            onclick="reiniciar()"
+        >
+            Nueva carrera
+        </button>
+
+    </div>
+
+</div>
+
+
+<div class="toast" id="toast">
+    <strong id="toastTitle"></strong>
+    <span id="toastText"></span>
+</div>
+
+
+<script>
+
+/* ============================================================
+   LA CARRERA POLÍTICA
+   MOTOR PRINCIPAL
+============================================================ */
+
+
+/* ============================================================
+   CONFIGURACIÓN
+============================================================ */
+
+const CONFIG = {
+
+    añoInicial: 2026,
+
+    edadInicial: 18,
+
+    edadFinal: 70,
+
+    saltoEdad: 2,
+
+    limiteMin: 0,
+
+    limiteMax: 100,
+
+    claveGuardado: "carreraPolitica_v3"
+
+};
+
+
+/* ============================================================
+   ESTADO INICIAL
+============================================================ */
+
+const estadoInicial = {
+
+    nombre: "Miguel",
+
+    edad: 18,
+
+    año: 2026,
+
+    partido: "Partido Renovador",
+
+    cargo: "Militante",
+
+    popularidad: 10,
+
+    influencia: 5,
+
+    prestigio: 10,
+
+    dinero: 5,
+
+    experiencia: 0,
+
+    ideologia: 50,
+
+    estabilidad: 70,
+
+    mandato: 0,
+
+    eleccionesGanadas: 0,
+
+    eleccionesPerdidas: 0,
+
+    escandalos: 0,
+
+    añosGobierno: 0,
+
+    oposicion: false,
+
+    presidente: false,
+
+    reeleccion: false,
+
+    flags: {
+
+        aliadoDirigente: false,
+
+        independiente: false,
+
+        candidatoEdil: false,
+
+        edil: false,
+
+        diputado: false,
+
+        senador: false,
+
+        ministro: false,
+
+        candidatoPresidencial: false,
+
+        presidente: false,
+
+        escandalo: false,
+
+        prensaHostil: false,
+
+        alianzaEmpresarial: false,
+
+        alianzaSindical: false,
+
+        rebelionInterna: false,
+
+        reformaExitosa: false,
+
+        crisisEconomica: false,
+
+        crisisPolitica: false,
+
+        reeleccionIntentada: false,
+
+        reeleccionGanada: false
+
+    },
+
+    relaciones: {
+
+        partido: 10,
+
+        dirigente: 0,
+
+        oposicion: 10,
+
+        prensa: 10,
+
+        empresarios: 0,
+
+        sindicatos: 0,
+
+        sociedadCivil: 10
+
+    },
+
+    historial: [],
+
+    log: []
+
+};
+
+
+/* ============================================================
+   COPIA PROFUNDA
+============================================================ */
+
+function crearEstadoInicial() {
+
+    return JSON.parse(
+        JSON.stringify(estadoInicial)
+    );
+
+}
+
+
+let jugador = crearEstadoInicial();
+
+
+/* ============================================================
+   UTILIDADES
+============================================================ */
+
+function limitar(valor) {
+
+    return Math.max(
+        CONFIG.limiteMin,
+        Math.min(
+            CONFIG.limiteMax,
+            Math.round(valor)
+        )
+    );
+
+}
+
+
+function limitarEstado() {
+
+    const variables = [
+        "popularidad",
+        "influencia",
+        "prestigio",
+        "dinero",
+        "experiencia",
+        "ideologia",
+        "estabilidad"
+    ];
+
+    variables.forEach(variable => {
+
+        jugador[variable] =
+            limitar(jugador[variable]);
+
+    });
+
+
+    Object.keys(jugador.relaciones)
+        .forEach(relacion => {
+
+            jugador.relaciones[relacion] =
+                limitar(
+                    jugador.relaciones[relacion]
+                );
+
+        });
+
+}
+
+
+function modificar(variable, cantidad) {
+
+    if (
+        typeof jugador[variable] === "number"
+    ) {
+
+        jugador[variable] += cantidad;
+
+    }
+
+}
+
+
+function modificarRelacion(relacion, cantidad) {
+
+    if (
+        jugador.relaciones[relacion] !== undefined
+    ) {
+
+        jugador.relaciones[relacion] += cantidad;
+
+    }
+
+}
+
+
+/* ============================================================
+   RELACIÓN CON EL RESULTADO
+============================================================ */
+
+function obtenerColorResultado(efectos) {
+
+    if (!efectos) return "";
+
+    let negativos = 0;
+    let positivos = 0;
+
+    Object.values(efectos)
+        .forEach(valor => {
+
+            if (valor < 0) negativos++;
+            if (valor > 0) positivos++;
+
+        });
+
+    if (negativos > positivos) {
+        return "danger";
+    }
+
+    if (negativos === positivos) {
+        return "warning";
+    }
+
+    return "";
+
+}
+
+
+/* ============================================================
+   DESCRIPCIÓN DE EFECTOS
+============================================================ */
+
+const nombresVariables = {
+
+    popularidad: "Popularidad",
+
+    influencia: "Influencia",
+
+    prestigio: "Prestigio",
+
+    dinero: "Dinero",
+
+    experiencia: "Experiencia",
+
+    estabilidad: "Estabilidad",
+
+    ideologia: "Ideología"
+
+};
+
+
+function describirEfectos(efectos) {
+
+    if (!efectos) return "";
+
+    const partes = [];
+
+    Object.entries(efectos)
+        .forEach(([variable, valor]) => {
+
+            if (!valor) return;
+
+            const nombre =
+                nombresVariables[variable] ||
+                variable;
+
+            partes.push(
+                `${nombre} ${valor > 0 ? "+" : ""}${valor}`
+            );
+
+        });
+
+    return partes.join(" · ");
+
+}
+
+
+/* ============================================================
+   RELACIONES
+============================================================ */
+
+const nombresRelaciones = {
+
+    partido: "Partido",
+
+    dirigente: "Dirigentes",
+
+    oposicion: "Oposición",
+
+    prensa: "Prensa",
+
+    empresarios: "Empresarios",
+
+    sindicatos: "Sindicatos",
+
+    sociedadCivil: "Sociedad civil"
+
+};
+
+
+function renderRelaciones() {
+
+    const contenedor =
+        document.getElementById("relaciones");
+
+    contenedor.innerHTML = "";
+
+    Object.entries(jugador.relaciones)
+        .forEach(([clave, valor]) => {
+
+            const bloque =
+                document.createElement("div");
+
+            bloque.className = "relationship";
+
+            bloque.innerHTML = `
+
+                <div class="relationship-top">
+
+                    <span class="relationship-name">
+                        ${nombresRelaciones[clave]}
+                    </span>
+
+                    <span class="relationship-value">
+                        ${valor}
+                    </span>
+
+                </div>
+
+                <div class="relationship-bar">
+
+                    <div
+                        class="relationship-fill"
+                        style="width:${valor}%"
+                    ></div>
+
+                </div>
+
+            `;
+
+            contenedor.appendChild(bloque);
+
+        });
+
+}
+
+
+/* ============================================================
+   IDEOLOGÍA
+============================================================ */
+
+function obtenerEtiquetaIdeologica() {
+
+    const valor = jugador.ideologia;
+
+    if (valor < 30) return "Izquierda";
+
+    if (valor < 45) return "Centro-izquierda";
+
+    if (valor <= 55) return "Centro";
+
+    if (valor <= 70) return "Centro-derecha";
+
+    return "Derecha";
+
+}
+
+
+function renderIdeologia() {
+
+    document.getElementById("ideologia")
+        .textContent =
+        `${jugador.ideologia} — ${obtenerEtiquetaIdeologica()}`;
+
+    document.getElementById("ideologyMarker")
+        .style.left =
+        `${jugador.ideologia}%`;
+
+}
+
+
+/* ============================================================
+   ACTUALIZAR PANTALLA
+============================================================ */
+
+function actualizarPantalla() {
+
+    limitarEstado();
+
+    document.getElementById("edad")
+        .textContent = jugador.edad;
+
+    document.getElementById("year")
+        .textContent = jugador.año;
+
+    document.getElementById("cargo")
+        .textContent = jugador.cargo;
+
+    document.getElementById("partido")
+        .textContent = jugador.partido;
+
+    document.getElementById("experiencia")
+        .textContent = jugador.experiencia;
+
+    document.getElementById("experienciaStat")
+        .textContent = jugador.experiencia;
+
+    document.getElementById("popularidad")
+        .textContent = jugador.popularidad;
+
+    document.getElementById("influencia")
+        .textContent = jugador.influencia;
+
+    document.getElementById("prestigio")
+        .textContent = jugador.prestigio;
+
+    document.getElementById("dinero")
+        .textContent = jugador.dinero;
+
+
+    actualizarBarra(
+        "barPopularidad",
+        jugador.popularidad
+    );
+
+    actualizarBarra(
+        "barInfluencia",
+        jugador.influencia
+    );
+
+    actualizarBarra(
+        "barPrestigio",
+        jugador.prestigio
+    );
+
+    actualizarBarra(
+        "barDinero",
+        jugador.dinero
+    );
+
+    actualizarBarra(
+        "barExperiencia",
+        jugador.experiencia
+    );
+
+
+    renderRelaciones();
+
+    renderIdeologia();
+
+    renderTrayectoria();
+
+    renderHistorial();
+
+}
+
+
+function actualizarBarra(id, valor) {
+
+    const elemento =
+        document.getElementById(id);
+
+    if (elemento) {
+
+        elemento.style.width =
+            `${limitar(valor)}%`;
+
+    }
+
+}
+
+
+/* ============================================================
+   TRAYECTORIA
+============================================================ */
+
+function renderTrayectoria() {
+
+    const contenedor =
+        document.getElementById("trayectoria");
+
+    const cargos = [
+
+        ["18", "Militante"],
+
+        ["24", "Edil"],
+
+        ["30", "Diputado"],
+
+        ["38", "Senador"],
+
+        ["45", "Ministro"],
+
+        ["50", "Candidato presidencial"],
+
+        ["50+", "Presidente"]
+
+    ];
+
+    contenedor.innerHTML = "";
+
+    cargos.forEach(([edad, cargo]) => {
+
+        const activo =
+            jugador.cargo === cargo ||
+            (
+                cargo === "Presidente" &&
+                jugador.presidente
+            );
+
+        const item =
+            document.createElement("div");
+
+        item.className = "career-item";
+
+        item.style.opacity =
+            activo ? "1" : ".55";
+
+        item.innerHTML = `
+
+            <span>
+                ${activo ? "●" : "○"} ${cargo}
+            </span>
+
+            <span>
+                ${edad}
+            </span>
+
+        `;
+
+        contenedor.appendChild(item);
+
+    });
+
+}
+
+
+/* ============================================================
+   HISTORIAL
+============================================================ */
+
+function renderHistorial() {
+
+    const contenedor =
+        document.getElementById("historial");
+
+    contenedor.innerHTML = "";
+
+    if (jugador.historial.length === 0) {
+
+        contenedor.innerHTML = `
+            <div class="history-item">
+                Todavía no has tomado decisiones.
+            </div>
+        `;
+
+        return;
+
+    }
+
+    [...jugador.historial]
+        .reverse()
+        .forEach(item => {
+
+            const elemento =
+                document.createElement("div");
+
+            elemento.className =
+                "history-item";
+
+            elemento.innerHTML = `
+
+                <span class="history-age">
+                    ${item.edad} años
+                </span>
+
+                — ${item.evento}
+
+                <br>
+
+                <strong>
+                    ${item.decision}
+                </strong>
+
+                <br>
+
+                ${item.resultado}
+
+            `;
+
+            contenedor.appendChild(elemento);
+
+        });
+
+}
+
+
+/* ============================================================
+   EVENTOS
+============================================================ */
+
+const eventos = [
+
+/* ------------------------------------------------------------
+   18
+------------------------------------------------------------ */
+
+{
+    id: "18_inicio",
+    edad: 18,
+    titulo: "El comienzo",
+    texto:
+        "Tienes 18 años y acabas de incorporarte a la juventud del Partido Renovador. Un dirigente local nota tu entusiasmo y decide acercarse a ti.",
+    contexto:
+        "Tu primera decisión definirá buena parte de tu red de contactos.",
+    opciones: [
+
+        {
+            texto: "Aceptar su apoyo y entrar en su sector",
+            descripcion:
+                "Ganas influencia rápidamente, pero quedas asociado a un dirigente.",
+            efectos: {
+                influencia: 10,
+                prestigio: -2,
+                experiencia: 3
+            },
+            relaciones: {
+                partido: 5,
+                dirigente: 18
+            },
+            flag: "aliadoDirigente",
+            resultado:
+                "Has ganado un padrino político. Tu influencia dentro del partido aumenta."
+        },
+
+        {
+            texto: "Mantenerte independiente",
+            descripcion:
+                "Construyes una carrera más lenta, basada en tu propia reputación.",
+            efectos: {
+                prestigio: 7,
+                influencia: 2,
+                experiencia: 2
+            },
+            relaciones: {
+                dirigente: -3,
+                sociedadCivil: 5
+            },
+            flag: "independiente",
+            resultado:
+                "Has decidido construir tu carrera sin depender de un dirigente."
+        }
+
+    ]
+},
+
+
+/* ------------------------------------------------------------
+   20
+------------------------------------------------------------ */
+
+{
+    id: "20_campana",
+    edad: 20,
+    titulo: "La primera campaña",
+    texto:
+        "El partido necesita jóvenes para organizar una campaña municipal. Te ofrecen una posición visible.",
+    contexto:
+        "La política comienza a competir directamente con tu vida profesional y académica.",
+    opciones: [
+
+        {
+            texto: "Aceptar y trabajar intensamente",
+            efectos: {
+                popularidad: 8,
+                influencia: 5,
+                experiencia: 8,
+                dinero: -3
+            },
+            relaciones: {
+                partido: 8,
+                prensa: 2
+            },
+            resultado:
+                "Tu rostro comienza a ser conocido dentro del partido y fuera de él."
+        },
+
+        {
+            texto: "Participar, pero mantener tus prioridades personales",
+            efectos: {
+                popularidad: 3,
+                prestigio: 5,
+                experiencia: 4
+            },
+            relaciones: {
+                partido: 2
+            },
+            resultado:
+                "Avanzas más lentamente, pero conservas una reputación de equilibrio."
+        },
+
+        {
+            texto: "Rechazar la propuesta",
+            efectos: {
+                prestigio: 4,
+                popularidad: -2
+            },
+            relaciones: {
+                partido: -5
+            },
+            resultado:
+                "Tu carrera política se ralentiza. El partido toma nota de tu distancia."
+        }
+
+    ]
+},
+
+
+/* ------------------------------------------------------------
+   22
+------------------------------------------------------------ */
+
+{
+    id: "22_documentos",
+    edad: 22,
+    titulo: "Una información delicada",
+    texto:
+        "Un compañero te entrega documentos que podrían perjudicar a un rival interno. Nadie sabe que tienes esa información.",
+    contexto:
+        "La primera gran prueba ética de tu carrera.",
+    opciones: [
+
+        {
+            texto: "Filtrar la información",
+            efectos: {
+                popularidad: 8,
+                influencia: 8,
+                prestigio: -10,
+                experiencia: 5
+            },
+            relaciones: {
+                dirigente: 7,
+                prensa: 8,
+                partido: 5
+            },
+            flag: "escandalo",
+            resultado:
+                "El rival queda debilitado. Pero algunos comienzan a verte como un político dispuesto a jugar duro."
+        },
+
+        {
+            texto: "Entregar los documentos a una autoridad partidaria",
+            efectos: {
+                prestigio: 8,
+                experiencia: 6
+            },
+            relaciones: {
+                partido: 6,
+                prensa: 3
+            },
+            resultado:
+                "Elegiste una vía institucional. Tu reputación mejora."
+        },
+
+        {
+            texto: "Guardar silencio",
+            efectos: {
+                prestigio: 10,
+                experiencia: 3
+            },
+            relaciones: {
+                sociedadCivil: 5
+            },
+            resultado:
+                "Decidiste no utilizar información comprometedora. Tu reputación mejora."
+        }
+
+    ]
+},
+
+
+/* ------------------------------------------------------------
+   24
+------------------------------------------------------------ */
+
+{
+    id: "24_edil",
+    edad: 24,
+    titulo: "La primera candidatura",
+    texto:
+        "Tu partido busca candidatos jóvenes para las elecciones locales. Tu nombre aparece entre los posibles candidatos a edil.",
+    contexto:
+        "Para entrar a la política institucional necesitarás combinar popularidad, organización y respaldo interno.",
+    opciones: [
+
+        {
+            texto: "Aceptar la candidatura",
+            efectos: {
+                popularidad: 7,
+                influencia: 8,
+                experiencia: 8,
+                dinero: -5
+            },
+            relaciones: {
+                partido: 7,
+                dirigente: 4
+            },
+            flag: "candidatoEdil",
+            resultado:
+                "Has aceptado competir por un cargo local. La elección se resolverá al final del evento."
+        },
+
+        {
+            texto: "Esperar unos años",
+            efectos: {
+                prestigio: 5,
+                influencia: 3,
+                experiencia: 5
+            },
+            resultado:
+                "Prefieres construir experiencia antes de asumir un cargo."
+        }
+
+    ]
+},
+
+
+/* ------------------------------------------------------------
+   26
+------------------------------------------------------------ */
+
+{
+    id: "26_conflicto",
+    edad: 26,
+    titulo: "El primer conflicto interno",
+    texto:
+        "Como joven dirigente, debes decidir si apoyas una propuesta impopular de tu propio partido.",
+    contexto:
+        "La lealtad partidaria y la reputación personal comienzan a entrar en conflicto.",
+    opciones: [
+
+        {
+            texto: "Apoyar al partido",
+            efectos: {
+                influencia: 10,
+                popularidad: -7,
+                experiencia: 5
+            },
+            relaciones: {
+                partido: 10,
+                prensa: -3
+            },
+            resultado:
+                "El partido reconoce tu lealtad."
+        },
+
+        {
+            texto: "Votar en contra",
+            efectos: {
+                prestigio: 8,
+                influencia: -5,
+                popularidad: 6,
+                experiencia: 5
+            },
+            relaciones: {
+                partido: -8,
+                sociedadCivil: 6,
+                prensa: 4
+            },
+            resultado:
+                "Tu independencia comienza a convertirse en una característica de tu carrera."
+        }
+
+    ]
+},
+
+
+/* ------------------------------------------------------------
+   28
+------------------------------------------------------------ */
+
+{
+    id: "28_eleccion_local",
+    edad: 28,
+    titulo: "La elección municipal",
+    texto:
+        "Has conseguido suficiente experiencia para competir seriamente por un cargo municipal.",
+    contexto:
+        "La primera elección importante determinará si tu carrera entra realmente en la política institucional.",
+    elecciones: true,
+    tipoEleccion: "edil",
+    opciones: [
+
+        {
+            texto: "Campaña intensiva",
+            efectos: {
+                popularidad: 10,
+                dinero: -10,
+                experiencia: 8
+            },
+            relaciones: {
+                prensa: 5,
+                partido: 5
+            },
+            resultado:
+                "Has decidido realizar una campaña agresiva."
+        },
+
+        {
+            texto: "Campaña moderada",
+            efectos: {
+                popularidad: 5,
+                dinero: -5,
+                experiencia: 5
+            },
+            relaciones: {
+                prensa: 2,
+                sociedadCivil: 3
+            },
+            resultado:
+                "Has optado por una campaña austera y disciplinada."
+        }
+
+    ]
+},
+
+
+/* ------------------------------------------------------------
+   30
+------------------------------------------------------------ */
+
+{
+    id: "30_diputado",
+    edad: 30,
+    titulo: "El salto nacional",
+    texto:
+        "Tu experiencia municipal te coloca entre los nombres considerados para una lista nacional.",
+    contexto:
+        "Para competir necesitas una combinación de influencia partidaria y reconocimiento público.",
+    opciones: [
+
+        {
+            texto: "Buscar la candidatura nacional",
+            condiciones: [
+                {
+                    variable: "experiencia",
+                    operador: ">=",
+                    valor: 20
+                }
+            ],
+            efectos: {
+                influencia: 8,
+                experiencia: 7,
+                dinero: -5
+            },
+            relaciones: {
+                partido: 6,
+                dirigente: 4
+            },
+            flag: "diputado",
+            resultado:
+                "Tu nombre comienza a circular en la política nacional."
+        },
+
+        {
+            texto: "Consolidarte primero a nivel local",
+            efectos: {
+                prestigio: 6,
+                experiencia: 8,
+                popularidad: 3
+            },
+            relaciones: {
+                sociedadCivil: 5
+            },
+            resultado:
+                "Decides construir una base territorial sólida."
+        }
+
+    ]
+},
+
+
+/* ------------------------------------------------------------
+   32
+------------------------------------------------------------ */
+
+{
+    id: "32_prensa",
+    edad: 32,
+    titulo: "La entrevista que puede cambiarlo todo",
+    texto:
+        "Un periodista de alcance nacional te ofrece una entrevista extensa. Tu posición puede convertirte en una figura emergente o generar un conflicto.",
+    contexto:
+        "La relación con la prensa empieza a ser una variable estratégica.",
+    opciones: [
+
+        {
+            texto: "Hablar con franqueza",
+            efectos: {
+                popularidad: 8,
+                prestigio: 5,
+                experiencia: 4
+            },
+            relaciones: {
+                prensa: 10,
+                sociedadCivil: 5
+            },
+            resultado:
+                "Tu estilo directo comienza a diferenciarte."
+        },
+
+        {
+            texto: "Responder de forma cuidadosamente institucional",
+            efectos: {
+                prestigio: 7,
+                experiencia: 5
+            },
+            relaciones: {
+                prensa: 4,
+                partido: 3
+            },
+            resultado:
+                "No generaste titulares explosivos, pero transmitiste solvencia."
+        },
+
+        {
+            texto: "Atacar públicamente a tus adversarios",
+            efectos: {
+                popularidad: 10,
+                prestigio: -7,
+                experiencia: 4
+            },
+            relaciones: {
+                prensa: 6,
+                oposicion: -10
+            },
+            resultado:
+                "La entrevista se vuelve viral. Ganas notoriedad y enemigos."
+        }
+
+    ]
+},
+
+
+/* ------------------------------------------------------------
+   34
+------------------------------------------------------------ */
+
+{
+    id: "34_empresarios",
+    edad: 34,
+    titulo: "Los empresarios se acercan",
+    texto:
+        "Un grupo empresarial quiere apoyar tu carrera. El respaldo podría financiar futuras campañas, pero puede afectar tu independencia.",
+    contexto:
+        "El dinero político siempre tiene un costo, aunque no sea inmediato.",
+    opciones: [
+
+        {
+            texto: "Aceptar el apoyo",
+            efectos: {
+                dinero: 15,
+                influencia: 8,
+                prestigio: -5
+            },
+            relaciones: {
+                empresarios: 20,
+                partido: 3
+            },
+            flag: "alianzaEmpresarial",
+            resultado:
+                "Obtienes recursos importantes para crecer políticamente."
+        },
+
+        {
+            texto: "Aceptar solamente financiación transparente",
+            efectos: {
+                dinero: 7,
+                prestigio: 5
+            },
+            relaciones: {
+                empresarios: 8,
+                sociedadCivil: 5
+            },
+            resultado:
+                "Aceptas colaboración bajo reglas claras."
+        },
+
+        {
+            texto: "Rechazar el acuerdo",
+            efectos: {
+                prestigio: 8,
+                influencia: -3
+            },
+            relaciones: {
+                empresarios: -8,
+                sociedadCivil: 7
+            },
+            resultado:
+                "Preservas tu independencia, aunque pierdes una fuente importante de financiación."
+        }
+
+    ]
+},
+
+
+/* ------------------------------------------------------------
+   36
+------------------------------------------------------------ */
+
+{
+    id: "36_sindicatos",
+    edad: 36,
+    titulo: "El movimiento sindical",
+    texto:
+        "Una organización sindical importante quiere negociar contigo una agenda común.",
+    contexto:
+        "Tu relación con los trabajadores puede ser decisiva en futuras elecciones.",
+    opciones: [
+
+        {
+            texto: "Construir una alianza",
+            efectos: {
+                influencia: 8,
+                popularidad: 6,
+                experiencia: 5
+            },
+            relaciones: {
+                sindicatos: 20,
+                partido: 4
+            },
+            flag: "alianzaSindical",
+            resultado:
+                "Has construido una red política con fuerte presencia territorial."
+        },
+
+        {
+            texto: "Mantener diálogo sin alianza",
+            efectos: {
+                prestigio: 5,
+                experiencia: 5
+            },
+            relaciones: {
+                sindicatos: 8
+            },
+            resultado:
+                "Mantienes una relación institucional sin comprometerte."
+        },
+
+        {
+            texto: "Romper públicamente con ellos",
+            efectos: {
+                popularidad: -5,
+                prestigio: 4,
+                influencia: 4
+            },
+            relaciones: {
+                sindicatos: -15,
+                empresarios: 5
+            },
+            resultado:
+                "Tu posición queda clara, pero has ganado un adversario organizado."
+        }
+
+    ]
+},
+
+
+/* ------------------------------------------------------------
+   38
+------------------------------------------------------------ */
+
+{
+    id: "38_senado",
+    edad: 38,
+    titulo: "El Senado",
+    texto:
+        "Después de años de trabajo político, tienes la oportunidad de disputar una banca en el Senado.",
+    contexto:
+        "El Senado exige una combinación de experiencia, popularidad y poder territorial.",
+    elecciones: true,
+    tipoEleccion: "senador",
+    opciones: [
+
+        {
+            texto: "Lanzarte a la elección",
+            efectos: {
+                dinero: -12,
+                experiencia: 10,
+                popularidad: 5
+            },
+            relaciones: {
+                partido: 8,
+                prensa: 3
+            },
+            resultado:
+                "Has decidido competir por el Senado."
+        },
+
+        {
+            texto: "No competir todavía",
+            efectos: {
+                experiencia: 8,
+                prestigio: 5
+            },
+            resultado:
+                "Decides esperar una oportunidad más favorable."
+        }
+
+    ]
+},
+
+
+/* ------------------------------------------------------------
+   40
+------------------------------------------------------------ */
+
+{
+    id: "40_reforma",
+    edad: 40,
+    titulo: "La gran reforma",
+    texto:
+        "Como dirigente nacional, tienes la posibilidad de impulsar una reforma importante.",
+    contexto:
+        "Las reformas pueden aumentar tu prestigio, pero también pueden destruir alianzas.",
+    opciones: [
+
+        {
+            texto: "Impulsarla hasta el final",
+            efectos: {
+                prestigio: 12,
+                influencia: 8,
+                estabilidad: -5,
+                experiencia: 8
+            },
+            relaciones: {
+                sociedadCivil: 8,
+                oposicion: -8,
+                partido: -3
+            },
+            flag: "reformaExitosa",
+            resultado:
+                "Te conviertes en uno de los principales defensores de la reforma."
+        },
+
+        {
+            texto: "Negociar una versión moderada",
+            efectos: {
+                prestigio: 7,
+                estabilidad: 7,
+                experiencia: 10
+            },
+            relaciones: {
+                oposicion: 5,
+                partido: 5,
+                sociedadCivil: 4
+            },
+            resultado:
+                "La negociación reduce el conflicto y permite aprobar una versión moderada."
+        },
+
+        {
+            texto: "Retirarla para evitar conflicto",
+            efectos: {
+                prestigio: -3,
+                estabilidad: 10
+            },
+            relaciones: {
+                partido: 5,
+                oposicion: 5
+            },
+            resultado:
+                "Evitaste una crisis, aunque algunos comienzan a cuestionar tu liderazgo."
+        }
+
+    ]
+},
+
+
+/* ------------------------------------------------------------
+   42
+------------------------------------------------------------ */
+
+{
+    id: "42_crisis",
+    edad: 42,
+    titulo: "Una crisis nacional",
+    texto:
+        "Una crisis económica y social golpea al país. El gobierno necesita respuestas rápidas y la oposición aprovecha cada error.",
+    contexto:
+        "Tu estabilidad y capacidad de gestión serán puestas a prueba.",
+    opciones: [
+
+        {
+            texto: "Defender medidas de austeridad",
+            efectos: {
+                prestigio: 5,
+                estabilidad: -5,
+                popularidad: -8,
+                experiencia: 10
+            },
+            relaciones: {
+                empresarios: 8,
+                sindicatos: -10
+            },
+            flag: "crisisEconomica",
+            resultado:
+                "La decisión mejora la confianza de algunos sectores, pero genera un costo social."
+        },
+
+        {
+            texto: "Priorizar gasto social",
+            efectos: {
+                popularidad: 8,
+                dinero: -10,
+                estabilidad: -3,
+                experiencia: 8
+            },
+            relaciones: {
+                sindicatos: 10,
+                empresarios: -6
+            },
+            resultado:
+                "Proteges a los sectores más afectados, aunque las cuentas públicas quedan tensionadas."
+        },
+
+        {
+            texto: "Buscar un acuerdo nacional",
+            efectos: {
+                estabilidad: 12,
+                prestigio: 8,
+                experiencia: 12
+            },
+            relaciones: {
+                oposicion: 12,
+                partido: 5,
+                prensa: 6
+            },
+            resultado:
+                "Logras construir un acuerdo político amplio."
+        }
+
+    ]
+},
+
+
+/* ------------------------------------------------------------
+   44
+------------------------------------------------------------ */
+
+{
+    id: "44_ministerio",
+    edad: 44,
+    titulo: "El Ministerio",
+    texto:
+        "El gobierno te ofrece un Ministerio. Es una oportunidad enorme, pero también significa asumir responsabilidad directa por los resultados del gobierno.",
+    contexto:
+        "La visibilidad aumenta. Los errores también.",
+    opciones: [
+
+        {
+            texto: "Aceptar el Ministerio",
+            efectos: {
+                influencia: 15,
+                experiencia: 12,
+                prestigio: 5
+            },
+            relaciones: {
+                partido: 8,
+                prensa: 5
+            },
+            flag: "ministro",
+            resultado:
+                "Te conviertes en ministro. Tu carrera entra en su etapa nacional."
+        },
+
+        {
+            texto: "Rechazarlo y mantener independencia",
+            efectos: {
+                prestigio: 10,
+                experiencia: 7
+            },
+            relaciones: {
+                partido: -4,
+                sociedadCivil: 6
+            },
+            resultado:
+                "Rechazas el cargo. Tu independencia aumenta, pero pierdes una oportunidad de poder."
+        }
+
+    ]
+},
+
+
+/* ------------------------------------------------------------
+   46
+------------------------------------------------------------ */
+
+{
+    id: "46_faccion",
+    edad: 46,
+    titulo: "La batalla interna",
+    texto:
+        "Dentro del Partido Renovador se prepara una lucha por el liderazgo. Dos sectores quieren que tomes posición.",
+    contexto:
+        "Tu influencia interna puede convertirte en líder o dejarte aislado.",
+    opciones: [
+
+        {
+            texto: "Apoyar al dirigente histórico",
+            efectos: {
+                influencia: 12,
+                experiencia: 5
+            },
+            relaciones: {
+                partido: 15,
+                dirigente: 15
+            },
+            resultado:
+                "Tu apoyo fortalece tu posición dentro del aparato partidario."
+        },
+
+        {
+            texto: "Encabezar una renovación",
+            efectos: {
+                influencia: 15,
+                prestigio: 7,
+                experiencia: 8
+            },
+            relaciones: {
+                partido: -5,
+                dirigente: -15,
+                sociedadCivil: 10,
+                prensa: 7
+            },
+            flag: "rebelionInterna",
+            resultado:
+                "Te conviertes en el rostro de una nueva generación política."
+        },
+
+        {
+            texto: "Mantenerte neutral",
+            efectos: {
+                prestigio: 5,
+                experiencia: 8
+            },
+            relaciones: {
+                partido: 3
+            },
+            resultado:
+                "Evitas la guerra interna y conservas margen para negociar."
+        }
+
+    ]
+},
+
+
+/* ------------------------------------------------------------
+   48
+------------------------------------------------------------ */
+
+{
+    id: "48_candidatura",
+    edad: 48,
+    titulo: "La candidatura presidencial",
+    texto:
+        "Tus resultados nacionales y tu trayectoria te convierten en uno de los posibles candidatos presidenciales.",
+    contexto:
+        "Para llegar a la Presidencia no basta con quererla: necesitas una coalición, recursos y suficiente legitimidad.",
+    condiciones: [
+        {
+            variable: "influencia",
+            operador: ">=",
+            valor: 45
+        }
+    ],
+    opciones: [
+
+        {
+            texto: "Lanzar tu candidatura",
+            efectos: {
+                popularidad: 8,
+                influencia: 10,
+                dinero: -15,
+                experiencia: 8
+            },
+            relaciones: {
+                partido: 8,
+                prensa: 8,
+                sociedadCivil: 5
+            },
+            flag: "candidatoPresidencial",
+            resultado:
+                "Has lanzado oficialmente tu candidatura presidencial."
+        },
+
+        {
+            texto: "Esperar una elección más",
+            efectos: {
+                experiencia: 10,
+                prestigio: 5,
+                influencia: 5
+            },
+            resultado:
+                "Prefieres llegar más preparado antes de competir por la Presidencia."
+        }
+
+    ]
+},
+
+
+/* ------------------------------------------------------------
+   50
+------------------------------------------------------------ */
+
+{
+    id: "50_presidencial",
+    edad: 50,
+    titulo: "La elección presidencial",
+    texto:
+        "Ha llegado el momento. Tu trayectoria de décadas se resume en una elección nacional.",
+    contexto:
+        "La Presidencia se decidirá por una combinación de popularidad, organización, recursos, prestigio, experiencia y relaciones.",
+    elecciones: true,
+    tipoEleccion: "presidente",
+    opciones: [
+
+        {
+            texto: "Campaña de cercanía",
+            efectos: {
+                popularidad: 10,
+                dinero: -12,
+                experiencia: 8
+            },
+            relaciones: {
+                sociedadCivil: 10,
+                prensa: 5
+            },
+            resultado:
+                "Recorres el país y centras la campaña en contacto directo con los ciudadanos."
+        },
+
+        {
+            texto: "Campaña profesional de gran escala",
+            efectos: {
+                popularidad: 15,
+                dinero: -20,
+                influencia: 8,
+                experiencia: 8
+            },
+            relaciones: {
+                empresarios: 6,
+                prensa: 8
+            },
+            resultado:
+                "Construyes una campaña nacional de enorme despliegue."
+        },
+
+        {
+            texto: "Campaña austera basada en prestigio",
+            efectos: {
+                prestigio: 12,
+                popularidad: 6,
+                dinero: -5,
+                experiencia: 10
+            },
+            relaciones: {
+                sociedadCivil: 8
+            },
+            resultado:
+                "Intentas convertir tu trayectoria en el principal argumento electoral."
+        }
+
+    ]
+},
+
+
+/* ------------------------------------------------------------
+   52
+------------------------------------------------------------ */
+
+{
+    id: "52_gobierno",
+    edad: 52,
+    titulo: "Los primeros años de gobierno",
+    texto:
+        "Si llegaste a la Presidencia, ahora comienza la parte más difícil: gobernar.",
+    contexto:
+        "La campaña terminó. Los resultados de tus decisiones empiezan a recaer directamente sobre el país.",
+    condiciones: [
+        {
+            flag: "presidente",
+            valor: true
+        }
+    ],
+    opciones: [
+
+        {
+            texto: "Priorizar estabilidad económica",
+            efectos: {
+                estabilidad: 10,
+                prestigio: 7,
+                popularidad: -3,
+                experiencia: 10
+            },
+            relaciones: {
+                empresarios: 8,
+                sindicatos: -5
+            },
+            resultado:
+                "Tu gobierno obtiene una reputación de disciplina económica."
+        },
+
+        {
+            texto: "Priorizar reformas sociales",
+            efectos: {
+                popularidad: 10,
+                prestigio: 8,
+                estabilidad: -4,
+                experiencia: 10
+            },
+            relaciones: {
+                sindicatos: 10,
+                sociedadCivil: 10,
+                empresarios: -5
+            },
+            resultado:
+                "Tu gobierno impulsa una agenda social ambiciosa."
+        },
+
+        {
+            texto: "Buscar acuerdos con todos los sectores",
+            efectos: {
+                estabilidad: 12,
+                prestigio: 10,
+                experiencia: 12
+            },
+            relaciones: {
+                oposicion: 10,
+                partido: 7,
+                empresarios: 4,
+                sindicatos: 4
+            },
+            resultado:
+                "Construyes un gobierno basado en acuerdos amplios."
+        }
+
+    ]
+},
+
+
+/* ------------------------------------------------------------
+   54
+------------------------------------------------------------ */
+
+{
+    id: "54_oposicion",
+    edad: 54,
+    titulo: "La oposición contraataca",
+    edadMinima: 54,
+    texto:
+        "La oposición encuentra una oportunidad para desgastar a tu gobierno. La prensa comienza a investigar posibles irregularidades.",
+    contexto:
+        "La forma en que manejes la crisis puede definir el resto de tu mandato.",
+    condiciones: [
+        {
+            flag: "presidente",
+            valor: true
+        }
+    ],
+    opciones: [
+
+        {
+            texto: "Abrir toda la información",
+            efectos: {
+                prestigio: 10,
+                estabilidad: 5,
+                popularidad: 3
+            },
+            relaciones: {
+                prensa: 10,
+                oposicion: 5
+            },
+            resultado:
+                "Decides afrontar la investigación con transparencia."
+        },
+
+        {
+            texto: "Defender políticamente al gobierno",
+            efectos: {
+                influencia: 8,
+                popularidad: 5,
+                prestigio: -5
+            },
+            relaciones: {
+                partido: 10,
+                prensa: -8,
+                oposicion: -8
+            },
+            resultado:
+                "Cierras filas con tu gobierno, pero aumentas el conflicto político."
+        },
+
+        {
+            texto: "Separar responsabilidades",
+            efectos: {
+                prestigio: 6,
+                estabilidad: 7,
+                experiencia: 8
+            },
+            relaciones: {
+                prensa: 4,
+                partido: -3
+            },
+            resultado:
+                "Intentas proteger la institución presidencial separando responsabilidades individuales."
+        }
+
+    ]
+},
+
+
+/* ------------------------------------------------------------
+   56
+------------------------------------------------------------ */
+
+{
+    id: "56_reeleccion",
+    edad: 56,
+    titulo: "La reelección",
+    texto:
+        "Tu primer mandato llega a su tramo final. El partido quiere saber si competirás nuevamente.",
+    contexto:
+        "La reelección depende tanto de tu popularidad como de tu estabilidad y legitimidad.",
+    condiciones: [
+        {
+            flag: "presidente",
+            valor: true
+        }
+    ],
+    opciones: [
+
+        {
+            texto: "Buscar la reelección",
+            efectos: {
+                influencia: 8,
+                dinero: -15,
+                experiencia: 8
+            },
+            relaciones: {
+                partido: 5,
+                prensa: 5
+            },
+            flag: "reeleccionIntentada",
+            resultado:
+                "Decides intentar continuar en el poder."
+        },
+
+        {
+            texto: "Anunciar que no buscarás otro mandato",
+            efectos: {
+                prestigio: 12,
+                estabilidad: 8
+            },
+            relaciones: {
+                sociedadCivil: 10,
+                partido: 3
+            },
+            resultado:
+                "Anuncias una salida ordenada y comienzas a construir tu legado."
+        }
+
+    ]
+},
+
+
+/* ------------------------------------------------------------
+   58
+------------------------------------------------------------ */
+
+{
+    id: "58_legado",
+    edad: 58,
+    titulo: "El legado",
+    texto:
+        "Tus decisiones durante décadas empiezan a definir cómo será recordado tu paso por la política.",
+    contexto:
+        "El poder puede medirse en cargos. El legado se mide en consecuencias.",
+    condiciones: [
+        {
+            flag: "presidente",
+            valor: true
+        }
+    ],
+    opciones: [
+
+        {
+            texto: "Defender tu legado político",
+            efectos: {
+                prestigio: 10,
+                experiencia: 10
+            },
+            relaciones: {
+                prensa: 5,
+                sociedadCivil: 5
+            },
+            resultado:
+                "Decides defender públicamente las decisiones de tu trayectoria."
+        },
+
+        {
+            texto: "Dar espacio a una nueva generación",
+            efectos: {
+                prestigio: 15,
+                influencia: -5,
+                experiencia: 8
+            },
+            relaciones: {
+                sociedadCivil: 10,
+                partido: 7
+            },
+            resultado:
+                "Comienzas a preparar una transición generacional."
+        }
+
+    ]
+},
+
+
+/* ------------------------------------------------------------
+   60
+------------------------------------------------------------ */
+
+{
+    id: "60_retiro",
+    edad: 60,
+    titulo: "El momento de decidir",
+    texto:
+        "Después de más de cuatro décadas en política, puedes seguir buscando poder o comenzar a retirarte.",
+    contexto:
+        "No todas las carreras políticas terminan en el poder. Algunas terminan en influencia.",
+    opciones: [
+
+        {
+            texto: "Continuar en primera línea",
+            efectos: {
+                influencia: 8,
+                experiencia: 10,
+                prestigio: -2
+            },
+            resultado:
+                "Decides seguir participando activamente."
+        },
+
+        {
+            texto: "Retirarte gradualmente",
+            efectos: {
+                prestigio: 15,
+                experiencia: 10
+            },
+            relaciones: {
+                sociedadCivil: 8
+            },
+            resultado:
+                "Comienzas una retirada ordenada y preservas tu reputación."
+        }
+
+    ]
+},
+
+
+/* ------------------------------------------------------------
+   62
+------------------------------------------------------------ */
+
+{
+    id: "62_mentor",
+    edad: 62,
+    titulo: "El mentor",
+    texto:
+        "Una nueva generación de jóvenes políticos busca tu consejo.",
+    contexto:
+        "Tu experiencia ahora tiene valor incluso sin ocupar un cargo.",
+    opciones: [
+
+        {
+            texto: "Convertirte en mentor",
+            efectos: {
+                prestigio: 12,
+                experiencia: 10
+            },
+            relaciones: {
+                sociedadCivil: 8,
+                partido: 5
+            },
+            resultado:
+                "Tu experiencia comienza a trascender tu propia carrera."
+        },
+
+        {
+            texto: "Intentar volver al poder",
+            efectos: {
+                influencia: 8,
+                prestigio: -5,
+                experiencia: 6
+            },
+            resultado:
+                "Intentas regresar al centro de la escena política."
+        }
+
+    ]
+},
+
+
+/* ------------------------------------------------------------
+   64
+------------------------------------------------------------ */
+
+{
+    id: "64_memorias",
+    edad: 64,
+    titulo: "Las memorias",
+    texto:
+        "Una editorial te propone escribir tus memorias políticas.",
+    contexto:
+        "Es una oportunidad para controlar el relato sobre tu propia historia.",
+    opciones: [
+
+        {
+            texto: "Aceptar y contar todo",
+            efectos: {
+                prestigio: 8,
+                experiencia: 5
+            },
+            relaciones: {
+                prensa: 8
+            },
+            resultado:
+                "Tus memorias generan gran interés."
+        },
+
+        {
+            texto: "Escribir una versión prudente",
+            efectos: {
+                prestigio: 5,
+                estabilidad: 4
+            },
+            resultado:
+                "Prefieres preservar relaciones antes que generar polémicas."
+        }
+
+    ]
+},
+
+
+/* ------------------------------------------------------------
+   66
+------------------------------------------------------------ */
+
+{
+    id: "66_historia",
+    edad: 66,
+    titulo: "La historia juzga",
+    texto:
+        "Un grupo de historiadores analiza tu trayectoria. Algunas de tus decisiones son defendidas; otras generan controversia.",
+    contexto:
+        "La política deja de ser una carrera personal y se convierte en parte de la memoria colectiva.",
+    opciones: [
+
+        {
+            texto: "Defender tus decisiones",
+            efectos: {
+                prestigio: 7,
+                experiencia: 5
+            },
+            resultado:
+                "Defiendes públicamente las decisiones que tomaste durante tu carrera."
+        },
+
+        {
+            texto: "Reconocer tus errores",
+            efectos: {
+                prestigio: 12,
+                experiencia: 8
+            },
+            resultado:
+                "Reconoces errores y matices. Tu figura adquiere una dimensión más humana."
+        }
+
+    ]
+},
+
+
+/* ------------------------------------------------------------
+   68
+------------------------------------------------------------ */
+
+{
+    id: "68_ultima_decision",
+    edad: 68,
+    titulo: "La última decisión",
+    texto:
+        "Una última generación de dirigentes te pide una definición sobre el futuro del país.",
+    contexto:
+        "Tu influencia ya no depende de un cargo. Depende de la autoridad que hayas construido.",
+    opciones: [
+
+        {
+            texto: "Intervenir públicamente",
+            efectos: {
+                influencia: 7,
+                popularidad: 5,
+                prestigio: 5
+            },
+            resultado:
+                "Tu voz vuelve a ocupar el centro del debate nacional."
+        },
+
+        {
+            texto: "Permanecer en silencio",
+            efectos: {
+                prestigio: 10,
+                experiencia: 5
+            },
+            resultado:
+                "Decides que tu tiempo de protagonismo político ha terminado."
+        }
+
+    ]
+}
+
+];
+
+
+/* ============================================================
+   BÚSQUEDA DE EVENTO
+============================================================ */
+
+function comprobarCondiciones(evento) {
+
+    if (!evento.condiciones) {
+        return true;
+    }
+
+    return evento.condiciones.every(condicion => {
+
+        if (condicion.flag) {
+
+            return (
+                jugador.flags[condicion.flag] ===
+                condicion.valor
+            );
+
+        }
+
+        if (condicion.variable) {
+
+            const actual =
+                jugador[condicion.variable];
+
+            switch (condicion.operador) {
+
+                case ">=":
+                    return actual >= condicion.valor;
+
+                case "<=":
+                    return actual <= condicion.valor;
+
+                case ">":
+                    return actual > condicion.valor;
+
+                case "<":
+                    return actual < condicion.valor;
+
+                case "===":
+                    return actual === condicion.valor;
+
+                default:
+                    return true;
+
+            }
+
+        }
+
+        return true;
+
+    });
+
+}
+
+
+function buscarEventoActual() {
+
+    const candidatos =
+        eventos.filter(evento => {
+
+            return (
+                evento.edad === jugador.edad &&
+                comprobarCondiciones(evento)
+            );
+
+        });
+
+    if (candidatos.length > 0) {
+
+        return candidatos[0];
+
+    }
+
+
+    /*
+       Si no hay evento específico para esa edad,
+       buscamos uno genérico.
+    */
+
+    return null;
+
+}
+
+
+/* ============================================================
+   MOSTRAR EVENTO
+============================================================ */
+
+function mostrarEvento() {
+
+    actualizarPantalla();
+
+    const evento =
+        buscarEventoActual();
+
+    if (!evento) {
+
+        verificarFin();
+
+        return;
+
+    }
+
+
+    document.getElementById("eventoMeta")
+        .textContent =
+        `AÑO ${jugador.año} — EDAD ${jugador.edad}`;
+
+
+    document.getElementById("eventoTitulo")
+        .textContent =
+        evento.titulo;
+
+
+    document.getElementById("eventoTexto")
+        .textContent =
+        evento.texto;
+
+
+    document.getElementById("eventoContexto")
+        .textContent =
+        evento.contexto || "";
+
+
+    const opciones =
+        document.getElementById("opciones");
+
+    opciones.innerHTML = "";
+
+
+    evento.opciones.forEach(
+        (opcion, indice) => {
+
+            const boton =
+                document.createElement("button");
+
+            boton.className = "choice";
+
+            boton.disabled =
+                opcion.condiciones &&
+                !comprobarCondiciones({
+                    condiciones:
+                        opcion.condiciones
+                });
+
+
+            const efectos =
+                describirEfectos(
+                    opcion.efectos
+                );
+
+
+            boton.innerHTML = `
+
+                <span class="choice-title">
+                    ${opcion.texto}
+                </span>
+
+                <span class="choice-description">
+
+                    ${opcion.descripcion || ""}
+
+                    ${efectos
+                        ? `<br><strong>${efectos}</strong>`
+                        : ""}
+
+                </span>
+
+            `;
+
+
+            boton.onclick = () => {
+
+                elegir(indice);
+
+            };
+
+
+            opciones.appendChild(boton);
+
+        }
+    );
+
+
+    const resultado =
+        document.getElementById("resultado");
+
+    resultado.className =
+        "result hidden";
+
+}
+
+
+/* ============================================================
+   ELEGIR OPCIÓN
+============================================================ */
+
+function elegir(indice) {
+
+    const evento =
+        buscarEventoActual();
+
+    if (!evento) return;
+
+    const opcion =
+        evento.opciones[indice];
+
+
+    /*
+       Evitar doble click
+    */
+
+    document
+        .querySelectorAll(".choice")
+        .forEach(btn => {
+
+            btn.disabled = true;
+
+        });
+
+
+    /*
+       Aplicar estadísticas
+    */
+
+    if (opcion.efectos) {
+
+        Object.entries(opcion.efectos)
+            .forEach(([variable, valor]) => {
+
+                modificar(
+                    variable,
+                    valor
+                );
+
+            });
+
+    }
+
+
+    /*
+       Aplicar relaciones
+    */
+
+    if (opcion.relaciones) {
+
+        Object.entries(opcion.relaciones)
+            .forEach(([relacion, valor]) => {
+
+                modificarRelacion(
+                    relacion,
+                    valor
+                );
+
+            });
+
+    }
+
+
+    /*
+       Flags
+    */
+
+    if (opcion.flag) {
+
+        jugador.flags[
+            opcion.flag
+        ] = true;
+
+    }
+
+
+    /*
+       Historial
+    */
+
+    jugador.historial.push({
+
+        edad: jugador.edad,
+
+        año: jugador.año,
+
+        evento: evento.titulo,
+
+        decision: opcion.texto,
+
+        resultado: opcion.resultado
+
+    });
+
+
+    /*
+       Log
+    */
+
+    jugador.log.push({
+
+        edad: jugador.edad,
+
+        mensaje: opcion.resultado
+
+    });
+
+
+    limitarEstado();
+
+
+    /*
+       Si era una elección,
+       resolver resultado electoral
+    */
+
+    if (evento.elecciones) {
+
+        mostrarResultadoEleccion(
+            evento,
+            opcion
+        );
+
+        return;
+
+    }
+
+
+    mostrarResultado(
+        opcion
+    );
+
+
+    guardarAutomaticamente();
+
+
+    setTimeout(() => {
+
+        avanzarTiempo();
+
+    }, 2200);
+
+}
+
+
+/* ============================================================
+   RESULTADO NORMAL
+============================================================ */
+
+function mostrarResultado(opcion) {
+
+    const resultado =
+        document.getElementById("resultado");
+
+    resultado.className =
+        "result " +
+        obtenerColorResultado(
+            opcion.efectos
+        );
+
+    resultado.innerHTML = `
+
+        <strong>Consecuencia</strong>
+
+        <br><br>
+
+        ${opcion.resultado}
+
+        ${
+            describirEfectos(opcion.efectos)
+            ? `<br><br><strong>
+                ${describirEfectos(opcion.efectos)}
+               </strong>`
+            : ""
+        }
+
+    `;
+
+}
+
+
+/* ============================================================
+   ELECCIONES
+============================================================ */
+
+function calcularFuerzaElectoral() {
+
+    let fuerza = 0;
+
+
+    /*
+       Popularidad
+    */
+
+    fuerza +=
+        jugador.popularidad * 0.30;
+
+
+    /*
+       Influencia
+    */
+
+    fuerza +=
+        jugador.influencia * 0.18;
+
+
+    /*
+       Prestigio
+    */
+
+    fuerza +=
+        jugador.prestigio * 0.15;
+
+
+    /*
+       Experiencia
+    */
+
+    fuerza +=
+        jugador.experiencia * 0.12;
+
+
+    /*
+       Dinero
+    */
+
+    fuerza +=
+        jugador.dinero * 0.08;
+
+
+    /*
+       Relaciones
+    */
+
+    fuerza +=
+        jugador.relaciones.partido * 0.05;
+
+    fuerza +=
+        jugador.relaciones.prensa * 0.04;
+
+    fuerza +=
+        jugador.relaciones.sociedadCivil * 0.04;
+
+
+    /*
+       Estabilidad
+    */
+
+    fuerza +=
+        jugador.estabilidad * 0.04;
+
+
+    /*
+       Penalización por escándalos
+    */
+
+    fuerza -=
+        jugador.escandalos * 4;
+
+
+    /*
+       Ruido electoral
+    */
+
+    const azar =
+        Math.random() * 18 - 9;
+
+
+    fuerza += azar;
+
+
+    return Math.max(
+        0,
+        Math.min(100, fuerza)
+    );
+
+}
+
+
+function mostrarResultadoEleccion(
+    evento,
+    opcion
+) {
+
+    const fuerza =
+        calcularFuerzaElectoral();
+
+
+    const resultado =
+        document.getElementById("resultado");
+
+
+    let gano = false;
+
+    let texto = "";
+
+    let clase = "";
+
+
+    /*
+       Umbrales según elección
+    */
+
+    let umbral = 52;
+
+
+    if (
+        evento.tipoEleccion === "edil"
+    ) {
+
+        umbral = 42;
+
+    }
+
+    if (
+        evento.tipoEleccion === "senador"
+    ) {
+
+        umbral = 48;
+
+    }
+
+    if (
+        evento.tipoEleccion === "presidente"
+    ) {
+
+        umbral = 50;
+
+    }
+
+
+    gano =
+        fuerza >= umbral;
+
+
+    if (gano) {
+
+        jugador.eleccionesGanadas++;
+
+        resultado.className =
+            "result";
+
+        texto =
+            construirVictoria(
+                evento.tipoEleccion,
+                fuerza
+            );
+
+    } else {
+
+        jugador.eleccionesPerdidas++;
+
+        resultado.className =
+            "result danger";
+
+        texto =
+            construirDerrota(
+                evento.tipoEleccion,
+                fuerza
+            );
+
+    }
+
+
+    resultado.innerHTML = `
+
+        <strong>
+            Resultado electoral
+        </strong>
+
+        <br><br>
+
+        ${texto}
+
+        <br><br>
+
+        <strong>
+            Fuerza electoral: ${Math.round(fuerza)}/100
+        </strong>
+
+    `;
+
+
+    actualizarPantalla();
+
+    guardarAutomaticamente();
+
+
+    setTimeout(() => {
+
+        avanzarTiempo();
+
+    }, 3000);
+
+}
+
+
+/* ============================================================
+   VICTORIA
+============================================================ */
+
+function construirVictoria(
+    tipo,
+    fuerza
+) {
+
+    if (tipo === "edil") {
+
+        jugador.cargo = "Edil";
+
+        jugador.flags.edil = true;
+
+        jugador.popularidad += 8;
+
+        jugador.influencia += 8;
+
+        jugador.experiencia += 8;
+
+        modificarRelacion(
+            "partido",
+            8
+        );
+
+        return `
+            Has ganado la elección municipal.
+            Tu carrera entra oficialmente en la política institucional.
+        `;
+
+    }
+
+
+    if (tipo === "senador") {
+
+        jugador.cargo = "Senador";
+
+        jugador.flags.senador = true;
+
+        jugador.popularidad += 8;
+
+        jugador.influencia += 12;
+
+        jugador.experiencia += 10;
+
+        modificarRelacion(
+            "partido",
+            10
+        );
+
+        return `
+            Has ganado la elección al Senado.
+            Ahora eres una figura nacional.
+        `;
+
+    }
+
+
+    if (tipo === "presidente") {
+
+        jugador.cargo = "Presidente";
+
+        jugador.presidente = true;
+
+        jugador.flags.presidente = true;
+
+        jugador.oposicion = false;
+
+        jugador.mandato = 1;
+
+        jugador.añosGobierno = 0;
+
+        jugador.popularidad += 12;
+
+        jugador.influencia += 15;
+
+        jugador.prestigio += 10;
+
+        modificarRelacion(
+            "partido",
+            10
+        );
+
+        modificarRelacion(
+            "prensa",
+            5
+        );
+
+        return `
+            <strong>
+                ¡Has sido elegido Presidente de la República!
+            </strong>
+
+            <br><br>
+
+            Comienza ahora la etapa más difícil:
+            gobernar.
+        `;
+
+    }
+
+
+    return "Has ganado la elección.";
+
+}
+
+
+/* ============================================================
+   DERROTA
+============================================================ */
+
+function construirDerrota(
+    tipo,
+    fuerza
+) {
+
+    jugador.oposicion = true;
+
+    jugador.popularidad -= 6;
+
+    jugador.influencia -= 4;
+
+    jugador.experiencia += 7;
+
+
+    if (tipo === "presidente") {
+
+        jugador.flags.candidatoPresidencial =
+            false;
+
+        return `
+            Has perdido la elección presidencial.
+            La derrota no significa necesariamente el final de tu carrera:
+            puedes reconstruirte desde la oposición.
+        `;
+
+    }
+
+
+    if (tipo === "senador") {
+
+        return `
+            Has perdido la elección al Senado.
+            Necesitarás reconstruir tu posición política.
+        `;
+
+    }
+
+
+    return `
+        Has perdido la elección.
+        La derrota reduce tu influencia, pero también aumenta tu experiencia.
+    `;
+
+}
+
+
+/* ============================================================
+   AVANCE TEMPORAL
+============================================================ */
+
+function avanzarTiempo() {
+
+    jugador.edad +=
+        CONFIG.saltoEdad;
+
+    jugador.año +=
+        CONFIG.saltoEdad;
+
+
+    /*
+       Ganancia automática de experiencia
+    */
+
+    jugador.experiencia += 2;
+
+
+    /*
+       Economía política básica
+    */
+
+    if (jugador.cargo === "Presidente") {
+
+        jugador.añosGobierno += 2;
+
+        jugador.mandato =
+            jugador.añosGobierno <= 4
+                ? 1
+                : 2;
+
+    }
+
+
+    /*
+       Recuperación ligera de estabilidad
+    */
+
+    if (
+        jugador.estabilidad < 50
+    ) {
+
+        jugador.estabilidad += 2;
+
+    }
+
+
+    /*
+       Si hay escándalo,
+       el costo permanece
+    */
+
+    if (jugador.flags.escandalo) {
+
+        jugador.prestigio -= 1;
+
+    }
+
+
+    actualizarCargoAutomaticamente();
+
+    limitarEstado();
+
+    guardarAutomaticamente();
+
+    mostrarEvento();
+
+}
+
+
+/* ============================================================
+   ACTUALIZACIÓN DE CARGO
+============================================================ */
+
+function actualizarCargoAutomaticamente() {
+
+    if (jugador.presidente) {
+
+        jugador.cargo =
+            "Presidente";
+
+        return;
+
+    }
+
+
+    if (
+        jugador.flags.ministro &&
+        jugador.edad >= 44
+    ) {
+
+        jugador.cargo =
+            "Ministro";
+
+        return;
+
+    }
+
+
+    if (
+        jugador.flags.senador &&
+        jugador.edad >= 38
+    ) {
+
+        jugador.cargo =
+            "Senador";
+
+        return;
+
+    }
+
+
+    if (
+        jugador.flags.diputado &&
+        jugador.edad >= 30
+    ) {
+
+        jugador.cargo =
+            "Diputado";
+
+        return;
+
+    }
+
+
+    if (
+        jugador.flags.edil &&
+        jugador.edad >= 24
+    ) {
+
+        jugador.cargo =
+            "Edil";
+
+        return;
+
+    }
+
+}
+
+
+/* ============================================================
+   EVENTOS DE GOBIERNO AUTOMÁTICOS
+============================================================ */
+
+function eventoGobiernoAutomatico() {
+
+    if (!jugador.presidente) {
+        return false;
+    }
+
+
+    /*
+       Crisis si estabilidad baja
+    */
+
+    if (
+        jugador.estabilidad < 30
+    ) {
+
+        jugador.flags.crisisPolitica =
+            true;
+
+        jugador.popularidad -= 4;
+
+        jugador.influencia -= 3;
+
+        modificarRelacion(
+            "oposicion",
+            -5
+        );
+
+        return true;
+
+    }
+
+
+    return false;
+
+}
+
+
+/* ============================================================
+   FINAL
+============================================================ */
+
+function verificarFin() {
+
+    if (
+        jugador.edad >
+        CONFIG.edadFinal
+    ) {
+
+        mostrarFinal();
+
+        return;
+
+    }
+
+
+    /*
+       Evento genérico si no existe
+    */
+
+    if (
+        jugador.edad <=
+        CONFIG.edadFinal
+    ) {
+
+        avanzarTiempoGenerico();
+
+    }
+
+}
+
+
+function avanzarTiempoGenerico() {
+
+    jugador.historial.push({
+
+        edad: jugador.edad,
+
+        año: jugador.año,
+
+        evento:
+            "Periodo de consolidación",
+
+        decision:
+            "Continuaste construyendo tu carrera",
+
+        resultado:
+            "La actividad política cotidiana fortaleció tu experiencia."
+
+    });
+
+
+    jugador.experiencia += 5;
+
+    jugador.influencia += 2;
+
+    jugador.prestigio += 2;
+
+
+    if (
+        jugador.presidente
+    ) {
+
+        jugador.popularidad -= 1;
+
+    }
+
+
+    limitarEstado();
+
+    jugador.edad += 2;
+
+    jugador.año += 2;
+
+
+    actualizarCargoAutomaticamente();
+
+    guardarAutomaticamente();
+
+    mostrarEvento();
+
+}
+
+
+/* ============================================================
+   FINAL DE LA CARRERA
+============================================================ */
+
+function calcularLegado() {
+
+    let legado = 0;
+
+
+    legado +=
+        jugador.prestigio * 0.30;
+
+    legado +=
+        jugador.experiencia * 0.20;
+
+    legado +=
+        jugador.influencia * 0.15;
+
+    legado +=
+        jugador.popularidad * 0.15;
+
+    legado +=
+        jugador.estabilidad * 0.10;
+
+    legado +=
+        jugador.eleccionesGanadas * 2;
+
+
+    legado -=
+        jugador.escandalos * 5;
+
+
+    return Math.round(
+        Math.max(0, Math.min(100, legado))
+    );
+
+}
+
+
+function obtenerTituloFinal(legado) {
+
+    if (
+        jugador.presidente &&
+        legado >= 80
+    ) {
+
+        return "Estadista histórico";
+
+    }
+
+    if (
+        jugador.presidente &&
+        legado >= 65
+    ) {
+
+        return "Presidente de gran legado";
+
+    }
+
+    if (
+        jugador.presidente &&
+        legado >= 50
+    ) {
+
+        return "Presidente influyente";
+
+    }
+
+    if (
+        legado >= 70
+    ) {
+
+        return "Gran dirigente político";
+
+    }
+
+    if (
+        legado >= 50
+    ) {
+
+        return "Dirigente de trayectoria";
+
+    }
+
+    return "Carrera política discreta";
+
+}
+
+
+function mostrarFinal() {
+
+    const legado =
+        calcularLegado();
+
+    const titulo =
+        obtenerTituloFinal(
+            legado
+        );
+
+
+    document.getElementById("eventoMeta")
+        .textContent =
+        "FINAL DE LA CARRERA";
+
+
+    document.getElementById("eventoTitulo")
+        .textContent =
+        titulo;
+
+
+    document.getElementById("eventoTexto")
+        .textContent =
+        construirTextoFinal(
+            legado
+        );
+
+
+    document.getElementById("eventoContexto")
+        .textContent =
+        "Tu carrera política ha terminado. Ahora queda el legado.";
+
+
+    document.getElementById("opciones")
+        .innerHTML = "";
+
+
+    document.getElementById("resultado")
+        .className =
+        "result";
+
+
+    document.getElementById("resultado")
+        .innerHTML = `
+
+            <div class="final-card">
+
+                <h3>
+                    ${titulo}
+                </h3>
+
+                <div class="final-score">
+
+                    <div class="final-score-item">
+                        <div class="final-score-value">
+                            ${legado}
+                        </div>
+                        <div class="final-score-label">
+                            LEGADO
+                        </div>
+                    </div>
+
+                    <div class="final-score-item">
+                        <div class="final-score-value">
+                            ${jugador.eleccionesGanadas}
+                        </div>
+                        <div class="final-score-label">
+                            ELECCIONES GANADAS
+                        </div>
+                    </div>
+
+                    <div class="final-score-item">
+                        <div class="final-score-value">
+                            ${jugador.experiencia}
+                        </div>
+                        <div class="final-score-label">
+                            EXPERIENCIA
+                        </div>
+                    </div>
+
+                    <div class="final-score-item">
+                        <div class="final-score-value">
+                            ${jugador.escandalos}
+                        </div>
+                        <div class="final-score-label">
+                            ESCÁNDALOS
+                        </div>
+                    </div>
+
+                </div>
+
+                <strong>
+                    Cargo final: ${jugador.cargo}
+                </strong>
+
+            </div>
+
+        `;
+
+
+    guardarAutomaticamente();
+
+}
+
+
+function construirTextoFinal(legado) {
+
+    if (jugador.presidente) {
+
+        if (legado >= 80) {
+
+            return `
+                Llegaste a la Presidencia y construiste
+                una trayectoria excepcional.
+                Tus decisiones dejaron una huella profunda
+                en la historia política del país.
+            `;
+
+        }
+
+        if (legado >= 60) {
+
+            return `
+                Llegaste a la Presidencia y ejerciste
+                un liderazgo relevante.
+                Tu legado contiene éxitos, conflictos
+                y decisiones que seguirán siendo discutidas.
+            `;
+
+        }
+
+        return `
+            Llegaste a la Presidencia.
+            Sin embargo, alcanzar el poder resultó
+            más sencillo que convertirlo en un legado duradero.
+        `;
+
+    }
+
+
+    if (legado >= 70) {
+
+        return `
+            Nunca necesitaste llegar a la Presidencia
+            para convertirte en una figura política
+            de gran influencia.
+        `;
+
+    }
+
+
+    return `
+        Construiste una carrera política con éxitos,
+        derrotas y decisiones que definieron tu trayectoria.
+    `;
+
+}
+
+
+/* ============================================================
+   GUARDADO
+============================================================ */
+
+function guardarAutomaticamente() {
+
+    localStorage.setItem(
+
+        CONFIG.claveGuardado,
+
+        JSON.stringify(jugador)
+
+    );
+
+}
+
+
+function guardarPartida() {
+
+    guardarAutomaticamente();
+
+    mostrarToast(
+        "Partida guardada",
+        "Tu carrera quedó almacenada en este navegador."
+    );
+
+}
+
+
+function cargarPartida() {
+
+    const guardada =
+        localStorage.getItem(
+            CONFIG.claveGuardado
+        );
+
+
+    if (!guardada) {
+
+        mostrarToast(
+            "Sin partida",
+            "No existe una partida guardada."
+        );
+
+        return;
+
+    }
+
+
+    try {
+
+        jugador =
+            JSON.parse(
+                guardada
+            );
+
+
+        asegurarCompatibilidad();
+
+        actualizarPantalla();
+
+        mostrarEvento();
+
+
+        mostrarToast(
+            "Partida cargada",
+            `Has vuelto a los ${jugador.edad} años.`
+        );
+
+    } catch (error) {
+
+        mostrarToast(
+            "Error",
+            "La partida guardada está dañada."
+        );
+
+    }
+
+}
+
+
+/* ============================================================
+   COMPATIBILIDAD
+============================================================ */
+
+function asegurarCompatibilidad() {
+
+    const base =
+        crearEstadoInicial();
+
+
+    /*
+       Agregar propiedades faltantes
+    */
+
+    Object.keys(base)
+        .forEach(clave => {
+
+            if (
+                jugador[clave] === undefined
+            ) {
+
+                jugador[clave] =
+                    base[clave];
+
+            }
+
+        });
+
+
+    Object.keys(base.relaciones)
+        .forEach(clave => {
+
+            if (
+                jugador.relaciones[clave] ===
+                undefined
+            ) {
+
+                jugador.relaciones[clave] =
+                    base.relaciones[clave];
+
+            }
+
+        });
+
+
+    Object.keys(base.flags)
+        .forEach(clave => {
+
+            if (
+                jugador.flags[clave] ===
+                undefined
+            ) {
+
+                jugador.flags[clave] =
+                    base.flags[clave];
+
+            }
+
+        });
+
+}
+
+
+/* ============================================================
+   REINICIAR
+============================================================ */
+
+function reiniciar() {
+
+    const confirmar =
+        confirm(
+            "¿Seguro que quieres comenzar una nueva carrera política? Se perderá la partida actual."
+        );
+
+
+    if (!confirmar) {
+        return;
+    }
+
+
+    localStorage.removeItem(
+        CONFIG.claveGuardado
+    );
+
+
+    jugador =
+        crearEstadoInicial();
+
+
+    actualizarPantalla();
+
+    mostrarEvento();
+
+
+    mostrarToast(
+        "Nueva carrera",
+        "Tu trayectoria comienza nuevamente a los 18 años."
+    );
+
+}
+
+
+/* ============================================================
+   TOAST
+============================================================ */
+
+let toastTimer = null;
+
+
+function mostrarToast(
+    titulo,
+    texto
+) {
+
+    const toast =
+        document.getElementById("toast");
+
+    document.getElementById(
+        "toastTitle"
+    ).textContent =
+        titulo;
+
+    document.getElementById(
+        "toastText"
+    ).textContent =
+        texto;
+
+
+    toast.classList.add("show");
+
+
+    clearTimeout(
+        toastTimer
+    );
+
+
+    toastTimer =
+        setTimeout(() => {
+
+            toast.classList.remove(
+                "show"
+            );
+
+        }, 3000);
+
+}
+
+
+/* ============================================================
+   INICIO
+============================================================ */
+
+function iniciarJuego() {
+
+    const guardada =
+        localStorage.getItem(
+            CONFIG.claveGuardado
+        );
+
+
+    if (guardada) {
+
+        try {
+
+            jugador =
+                JSON.parse(
+                    guardada
+                );
+
+            asegurarCompatibilidad();
+
+        } catch {
+
+            jugador =
+                crearEstadoInicial();
+
+        }
+
+    }
+
+
+    actualizarPantalla();
+
+    mostrarEvento();
+
+}
+
+
+iniciarJuego();
+
+</script>
+
+</body>
+  </html>
